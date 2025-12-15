@@ -12,6 +12,7 @@ const TitleCards = ({title, category}) => {
  
   const [apiData, setApiData] = React.useState([]);
   const [error, setError] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
 
   const cardsRef = useRef(null);
 
@@ -30,8 +31,10 @@ const TitleCards = ({title, category}) => {
   };
 
   const fetchData = async () => {
+    setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc`, options);
+      const endpoint = `${API_URL}/discover/movie?sort_by=popularity.desc`;
+      const response = await fetch(endpoint, options);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -41,6 +44,8 @@ const TitleCards = ({title, category}) => {
     } catch (error) {
       console.log('Fetch error: ', error);
       setError(error);
+    } finally {
+      setLoading(false);
     }
     
   }
@@ -62,6 +67,7 @@ const TitleCards = ({title, category}) => {
     <div className='TitleCards'>
       <h2>{title?title:"Popular on Netflix"}</h2>
       <div className='card-list' ref={cardsRef}>
+        {loading && <p>Loading...</p>}
         {apiData.map((card, index) => {
           return <div className="card" key={index}>
             <img src={image_base_url+card.backdrop_path} alt="" />
